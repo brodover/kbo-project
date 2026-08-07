@@ -17,16 +17,20 @@ def get_player_obp(
     end_date: Optional[date] = Query(None, description="Filter until this date (YYYY-MM-DD)"),
     db: Session = Depends(get_db)
 ):
-    # Base query targeting your materialized view
-    query_str = "SELECT * FROM player_game_stats WHERE batter_id = :b_id"
+    
+    query_str = """
+        SELECT p.* 
+        FROM player_game_stats p
+        JOIN games g ON p.game_id = g.game_id
+        WHERE p.batter_id = :b_id
+    """
     params = {"b_id": batter_id}
 
-    # Dynamically add date filtering if provided
     if start_date:
-        query_str += " AND game_date >= :start_date"
+        query_str += " AND g.game_date >= :start_date"
         params["start_date"] = start_date
     if end_date:
-        query_str += " AND game_date <= :end_date"
+        query_str += " AND g.game_date <= :end_date"
         params["end_date"] = end_date
 
     query_str += " LIMIT 50"
