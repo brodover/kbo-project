@@ -1,0 +1,75 @@
+<div class="stats-container">
+  <h2>Player Game Stats Dashboard</h2>
+
+  <!-- Filters Form -->
+  <div class="filter-card">
+    <div class="filter-group">
+      <label for="batterId">Batter ID / Search:</label>
+      <input 
+        id="batterId" 
+        type="number" 
+        [(ngModel)]="batterId" 
+        placeholder="Enter Batter ID (e.g. 50500)" 
+      />
+    </div>
+
+    <div class="filter-group">
+      <label for="startDate">Start Date:</label>
+      <input 
+        id="startDate" 
+        type="date" 
+        [(ngModel)]="startDate" 
+      />
+    </div>
+
+    <div class="filter-group">
+      <label for="endDate">End Date:</label>
+      <input 
+        id="endDate" 
+        type="date" 
+        [(ngModel)]="endDate" 
+      />
+    </div>
+
+    <button (click)="searchStats()" [disabled]="loading">
+      {{ loading ? 'Loading...' : 'Search Stats' }}
+    </button>
+  </div>
+
+  <!-- Error Message -->
+  <div *ngIf="errorMessage" class="error-banner">
+    {{ errorMessage }}
+  </div>
+
+  <!-- Results Table -->
+  <div *ngIf="stats.length > 0; else noData" class="table-responsive">
+    <table class="stats-table">
+      <thead>
+        <tr>
+          <th>Game Date</th>
+          <th>Game ID</th>
+          <th>Hits</th>
+          <th>BBs</th>
+          <th>HBPs</th>
+          <th>SFs</th>
+          <th>PAs</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let stat of stats">
+          <td>{{ stat.game_date || 'N/A' }}</td>
+          <td>{{ stat.game_id }}</td>
+          <td>{{ stat.hits }}</td>
+          <td>{{ stat.bbs }}</td>
+          <td>{{ stat.hbps }}</td>
+          <td>{{ stat.sfs }}</td>
+          <td>{{ stat.pas }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <ng-template #noData>
+    <p class="no-data" *ngIf="!loading">No statistics found for the selected filters.</p>
+  </ng-template>
+</div>

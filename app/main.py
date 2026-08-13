@@ -2,6 +2,7 @@ from datetime import date
 from typing import Optional
 
 from fastapi import FastAPI, Depends, Query
+from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from sqlalchemy import text
 
@@ -9,6 +10,12 @@ from app.schemas import PlayerGameStats
 from .database import get_db, engine
 
 app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:4200"],
+    allow_methods=["*"],  # Allows all methods (GET, POST, etc.)
+    allow_headers=["*"],  # Allows all headers
+)
 
 @app.get("/stats/obp/{batter_id}", response_model=list[PlayerGameStats])
 def get_player_obp(
