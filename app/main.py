@@ -26,7 +26,15 @@ def get_player_obp(
 ):
     
     query_str = """
-        SELECT p.* 
+        SELECT 
+            p.batter_id,
+            p.game_id,
+            p.hits,
+            p.bbs,
+            p.hbps,
+            p.sfs,
+            p.pas, 
+            g.game_date
         FROM player_game_stats p
         JOIN games g ON p.game_id = g.game_id
         WHERE p.batter_id = :b_id

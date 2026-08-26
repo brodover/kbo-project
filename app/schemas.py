@@ -1,13 +1,16 @@
+from datetime import date
+
 from pydantic import BaseModel
 
 class PlayerGameStats(BaseModel):
     batter_id: int
     game_id: str
-    hits: int
-    bbs: int
-    hbps: int
-    sfs: int
-    pas: int
+    hits: int   # hits
+    bbs: int    # base on balls (walks)
+    hbps: int   # hit by pitches
+    sfs: int  # sacrifice flies
+    pas: int    # plate appearances
+    game_date: date = None
 
     class Config:
         # This tells Pydantic to work with ORM objects (like SQLAlchemy)
