@@ -6,5 +6,5 @@ export interface PlayerGameStats {
   hbps: number;
   sfs: number;
   pas: number;
-  game_date?: string;
+  game_date: string;
 }

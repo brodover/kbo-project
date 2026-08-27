@@ -9,6 +9,8 @@ import { PlayerStatsService } from '../../services/player-stats';
 
 export interface CachedSearchResult {
   playerId: number;
+  startDate?: string;
+  endDate?: string;
   timeFrame: string;
   obp: number;
   stats: PlayerGameStats[];
@@ -40,10 +42,10 @@ export class PlayerStatsComponent {
   errorMessage: string = '';
 
   ngOnInit() {
-    this.loadSearchHistory();
+    this.restoreChips();
   }
 
-  loadSearchHistory() {
+  restoreChips() {
     const saved = localStorage.getItem(this.STORAGE_KEY);
     if (saved) {
       try {
@@ -54,12 +56,14 @@ export class PlayerStatsComponent {
     }
   }
 
-  saveSearchResult(playerId: number | number, timeFrame: string, obp: number, stats: PlayerGameStats[]) {
-    const newEntry: CachedSearchResult = { playerId, timeFrame, obp, stats };
+  saveChip(
+    playerId: number, startDate: string | undefined, endDate: string | undefined,
+    timeFrame: string, obp: number, stats: PlayerGameStats[]) {
+    const newEntry: CachedSearchResult = { playerId, startDate, endDate, timeFrame, obp, stats };
 
     // Filter out any exact duplicates for this player and timeframe
     this.recentResults = this.recentResults.filter(
-      item => !(item.playerId === playerId && item.timeFrame === timeFrame)
+      item => !(item.playerId === playerId && item.startDate === startDate && item.endDate === endDate)
     );
 
     // Push to the front and cap at 10
@@ -72,12 +76,19 @@ export class PlayerStatsComponent {
   }
 
   // When user clicks a history chip, load it directly without hitting the API!
-  loadFromHistory(entry: CachedSearchResult) {
-    // this.selectedObp = entry.obp;
-    // this.stats = entry.stats;
+  loadFromChip(item: CachedSearchResult) {
+    console.log('Loading history item:', item);
+
+    this.batterId = item.playerId;
+    this.startDate = item.startDate || '';
+    this.endDate = item.endDate || '';
+
+    this.stats = item.stats;
+    this.errorMessage = '';
+    this.loading = false;
   }
 
-  clearHistory() {
+  clearChips() {
     this.recentResults = [];
     localStorage.removeItem(this.STORAGE_KEY);
   }
@@ -99,7 +110,13 @@ export class PlayerStatsComponent {
       this.errorMessage = '';
       
       // Refresh its position to the front of your history list
-      this.saveSearchResult(this.batterId, timeFrame, cachedMatch.obp, cachedMatch.stats);
+      this.saveChip(
+        this.batterId, 
+        this.startDate || undefined, 
+        this.endDate || undefined,
+        timeFrame, 
+        cachedMatch.obp, 
+        cachedMatch.stats);
       return;
     }
 
@@ -110,14 +127,20 @@ export class PlayerStatsComponent {
     this.playerStatsService.getPlayerObpStats(this.batterId, this.startDate || undefined, this.endDate || undefined)
       .subscribe({
         next: (data) => {
-          this.stats = data;
+          this.stats = this.sortStatsByDate(data);
           this.loading = false;
 
           // Calculate OBP locally or extract it from the data first, then save:
-          const obp = this.calculateObp(data); 
+          const obp = this.calculateObp(this.stats); 
 
           // Save to localStorage ONLY after data is safely loaded and available
-          this.saveSearchResult(this.batterId, timeFrame, obp, data);
+          this.saveChip(
+            this.batterId, 
+            this.startDate || undefined, 
+            this.endDate || undefined,
+            timeFrame, 
+            obp, 
+            this.stats);
         },
         error: (err) => {
           console.error('Error fetching stats', err);
@@ -155,6 +178,12 @@ export class PlayerStatsComponent {
   // getter for html
   get cumulativeObp(): number {
     return this.calculateObp(this.stats);
+  }
+
+  sortStatsByDate(statsArray: PlayerGameStats[]): PlayerGameStats[] {
+    if (!statsArray) return [];
+    // Use spread operator [...] to avoid mutating the original array reference
+    return [...statsArray].sort((a, b) => a.game_date.localeCompare(b.game_date));
   }
 
   getTimeFrameString(): string {

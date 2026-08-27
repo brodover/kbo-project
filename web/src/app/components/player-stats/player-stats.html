@@ -45,17 +45,20 @@
     <h3>Period OBP: {{ cumulativeObp | number:'1.3-3' }}</h3>
   </div>
 
+  <!-- Search History -->
   <div class="history-container" *ngIf="recentResults.length > 0">
     <span class="history-label">Recent Results:</span>
     <div class="result-chips">
       <button 
         *ngFor="let item of recentResults" 
-        (click)="loadFromHistory(item)"
+        (click)="loadFromChip(item)"
         class="chip">
-        {{ item.playerId }} (OBP: {{ item.obp | number:'1.3-3' }})
+        <span class="chip-player">Player {{ item.playerId }}</span>
+        <span class="chip-obp">OBP: {{ item.obp | number:'1.3-3' }}</span>
+        <span class="chip-time">{{ item.timeFrame }}</span>
       </button>
     </div>
-    <button (click)="clearHistory()" class="clear-btn">Clear History</button>
+    <button (click)="clearChips()" class="clear-btn">Clear History</button>
   </div>
 
   <!-- Results Table -->
@@ -65,22 +68,22 @@
         <tr>
           <th>Game Date</th>
           <th>Game ID</th>
-          <th>Hits</th>
-          <th>BBs</th>
-          <th>HBPs</th>
-          <th>SFs</th>
-          <th>PAs</th>
+          <th class="col-center">Hits</th>
+          <th class="col-center">BBs</th>
+          <th class="col-center">HBPs</th>
+          <th class="col-center">SFs</th>
+          <th class="col-center">PAs</th>
         </tr>
       </thead>
       <tbody>
         <tr *ngFor="let stat of stats">
           <td>{{ stat.game_date || 'N/A' }}</td>
-          <td>{{ stat.game_id }}</td>
-          <td>{{ stat.hits }}</td>
-          <td>{{ stat.bbs }}</td>
-          <td>{{ stat.hbps }}</td>
-          <td>{{ stat.sfs }}</td>
-          <td>{{ stat.pas }}</td>
+          <td class="col-game-id">{{ stat.game_id }}</td>
+          <td class="col-center">{{ stat.hits }}</td>
+          <td class="col-center">{{ stat.bbs }}</td>
+          <td class="col-center">{{ stat.hbps }}</td>
+          <td class="col-center">{{ stat.sfs }}</td>
+          <td class="col-center">{{ stat.pas }}</td>
         </tr>
       </tbody>
     </table>

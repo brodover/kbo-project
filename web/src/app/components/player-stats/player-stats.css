@@ -86,9 +86,66 @@ button:disabled {
   background-color: #f1f1f1;
 }
 
+.col-game-id {
+  font-size: 0.7rem;
+  color: #888;
+  width: 80px; /* Forces it to shrink down */
+  white-space: nowrap;
+}
+
+/* Center-align headers and cells for stats columns */
+.stats-table th.col-center,
+.stats-table td.col-center {
+  text-align: center;
+}
+
 .no-data {
   color: #666;
   font-style: italic;
   text-align: center;
   margin-top: 20px;
+}
+
+/* Search history styles */
+.history-container {
+  margin-bottom: 20px;
+}
+
+.chip {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start; /* Aligns text to the left */
+  padding: 8px 12px;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.chip-player {
+  font-weight: bold;
+}
+
+.chip-obp {
+  color: #d9ff91;
+  font-family: monospace; /* Gives numbers a clean, aligned look */
+}
+
+.chip-time {
+  font-size: 0.9em;
+}
+
+.clear-btn {
+  background-color: #f8d7da; /* Soft red / light pink background */
+  color: #721c24;            /* Dark red text */
+  border: 1px solid #f5c6cb;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+}
+
+/* Optional hover effect */
+.clear-btn:hover {
+  background-color: #f5c6cb;
 }
