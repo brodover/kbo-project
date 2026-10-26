@@ -16,3 +16,13 @@ class PlayerGameStats(BaseModel):
         # This tells Pydantic to work with ORM objects (like SQLAlchemy)
         # if you ever pass database rows directly to the model.
         from_attributes = True
+
+class PlayerProfile(BaseModel):
+    player_id: int
+    player_name: str
+    birth_date: str
+    current_team: str
+    position: str
+
+    class Config:
+        from_attributes = True

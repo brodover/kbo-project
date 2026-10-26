@@ -1,6 +1,28 @@
 <div class="stats-container">
   <h2>Player Game Stats Dashboard</h2>
 
+  <!-- Search Bar -->
+  <div class="search-container">
+    <input 
+      id="playerSearch"
+      type="text" 
+      [(ngModel)]="searchQuery" 
+      (input)="onSearchInput()" 
+      placeholder="Type player name (e.g., 김현수)..."
+      autocomplete="off"
+    />
+    
+    <!-- Autocomplete Dropdown List -->
+    <ul *ngIf="showDropdown" class="autocomplete-dropdown">
+      <li *ngFor="let p of autocompletePlayers" (mousedown)="selectPlayer(p)" class="autocomplete-item">
+        <strong>{{ p.player_name }}</strong> 
+        <span class="position"> ({{ p.position }})</span><br>
+        <small class="details">{{ p.current_team }} | {{ p.birth_date }}</small>
+      </li>
+    </ul>
+  </div>
+  <div id="playerStatsContainer" style="margin-top: 20px;"></div>
+
   <!-- Filters Form -->
   <div class="filter-card">
     <div class="filter-group">

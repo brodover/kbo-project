@@ -6,7 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from sqlalchemy import text
 
-from app.schemas import PlayerGameStats
+from app.schemas import PlayerGameStats, PlayerProfile
 from .database import get_db, engine
 
 app = FastAPI()
@@ -16,6 +16,11 @@ app.add_middleware(
     allow_methods=["*"],  # Allows all methods (GET, POST, etc.)
     allow_headers=["*"],  # Allows all headers
 )
+
+@app.get("/players/search/{name}", response_model=list[PlayerProfile])
+def search_players(name: str, db: Session = Depends(get_db)):
+    result = db.execute(text("SELECT * FROM players WHERE player_name ILIKE :name"), {"name": f"%{name}%"}).fetchall()
+    return [dict(row._mapping) for row in result]
 
 @app.get("/stats/obp/{batter_id}", response_model=list[PlayerGameStats])
 def get_player_obp(

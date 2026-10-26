@@ -1,10 +1,7 @@
-export class PlayerStats {
-
-}
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { PlayerGameStats } from '../../models/player-game-stats';
+import { PlayerGameStats, PlayerProfile } from '../../models/player-game-stats';
 import { PlayerStatsService } from '../../services/player-stats';
 
 export interface CachedSearchResult {
@@ -23,8 +20,15 @@ export interface CachedSearchResult {
   templateUrl: './player-stats.html',
   styleUrls: ['./player-stats.css']
 })
+
 export class PlayerStatsComponent {
   private playerStatsService = inject(PlayerStatsService);
+
+  // player search and autocomplete
+  searchQuery: string = '';
+  autocompletePlayers: PlayerProfile[] = [];
+  showDropdown: boolean = false;
+  private searchTimeout: any;
 
   // recent search results
   recentResults: CachedSearchResult[] = [];
@@ -43,6 +47,43 @@ export class PlayerStatsComponent {
 
   ngOnInit() {
     this.restoreChips();
+  }
+
+  onSearchInput() {
+    clearTimeout(this.searchTimeout);
+    
+    if (!this.searchQuery || this.searchQuery.trim().length < 2) {
+      this.autocompletePlayers = [];
+      this.showDropdown = false;
+      return;
+    }
+
+    console.log('User typed:', this.searchQuery);
+    // Debounce by 500ms so it doesn't spam the API on every keystroke
+    this.searchTimeout = setTimeout(() => {
+      this.playerStatsService.getPlayerProfile(this.searchQuery.trim()).subscribe({
+        next: (players: PlayerProfile[]) => {
+          console.log('Players retrieved:', players.length);
+          this.autocompletePlayers = players;
+          this.showDropdown = players.length > 0;
+        },
+        error: (err: any) => {
+          console.error('Error searching players:', err);
+          this.autocompletePlayers = [];
+          this.showDropdown = false;
+        }
+      });
+    }, 500);
+  }
+
+  selectPlayer(player: PlayerProfile) {
+    this.searchQuery = player.player_name;
+    this.batterId = player.player_id;
+    this.showDropdown = false;
+    this.autocompletePlayers = [];
+    
+    // Automatically trigger stats search for this selected player
+    this.searchStats();
   }
 
   restoreChips() {
@@ -200,3 +241,4 @@ export class PlayerStatsComponent {
     return timeFrame;
   }
 }
+

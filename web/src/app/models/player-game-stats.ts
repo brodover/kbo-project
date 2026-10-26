@@ -8,3 +8,11 @@ export interface PlayerGameStats {
   pas: number;
   game_date: string;
 }
+
+export interface PlayerProfile {
+  player_id: number;
+  player_name: string;
+  birth_date: string;
+  current_team: string;
+  position: string;
+}
