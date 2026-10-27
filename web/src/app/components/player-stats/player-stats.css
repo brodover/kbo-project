@@ -1,33 +1,3 @@
-.search-container {
-  position: relative;
-  width: 300px;
-}
-
-.search-container input {
-  width: 100%;
-  padding: 8px;
-}
-
-.search-container ul {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  background: white;
-  border: 1px solid #ccc;
-  border-top: none;
-  list-style: none;
-  padding: 4px 8px;
-  margin: 0;
-  max-height: 200px;
-  overflow-y: auto;
-  z-index: 1000;
-}
-
-.search-container ul li + li {
-  margin-top: 4px; 
-}
-
 .stats-container {
   max-width: 900px;
   margin: 40px auto;
@@ -48,6 +18,7 @@
 }
 
 .filter-group {
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -63,7 +34,33 @@
   border: 1px solid #ccc;
   border-radius: 4px;
   font-size: 14px;
+  min-height: 19px;
 }
+
+.filter-group ul {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid #ccc;
+  border-top: none;
+  list-style: none;
+  padding: 4px 8px;
+  margin: 0;
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 1000;
+}
+
+.filter-group ul li + li {
+  margin-top: 4px; 
+}
+
+.filter-group ul li {
+    cursor: pointer;
+}
+
 
 button {
   padding: 9px 18px;
@@ -146,8 +143,7 @@ button:disabled {
 .chip {
   display: flex;
   flex-direction: row;
-  align-items: flex-start;
-  /* Aligns text to the left */
+  align-items: flex-end;
   padding: 8px 12px;
   gap: 6px;
   cursor: pointer;
@@ -160,7 +156,6 @@ button:disabled {
 .chip-obp {
   color: #d9ff91;
   font-family: monospace;
-  /* Gives numbers a clean, aligned look */
 }
 
 .chip-time {
@@ -169,7 +164,6 @@ button:disabled {
 
 .clear-btn {
   background-color: #f8d7da;
-  /* Soft red / light pink background */
   color: #721c24;
   /* Dark red text */
   border: 1px solid #f5c6cb;

@@ -1,10 +1,11 @@
-import { Component, inject } from '@angular/core';
+import { Component, HostListener, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { PlayerGameStats, PlayerProfile } from '../../models/player-game-stats';
 import { PlayerStatsService } from '../../services/player-stats';
 
 export interface CachedSearchResult {
+  playerName: string;
   playerId: number;
   startDate?: string;
   endDate?: string;
@@ -24,21 +25,21 @@ export interface CachedSearchResult {
 export class PlayerStatsComponent {
   private playerStatsService = inject(PlayerStatsService);
 
-  // player search and autocomplete
-  searchQuery: string = '';
-  autocompletePlayers: PlayerProfile[] = [];
-  showDropdown: boolean = false;
-  private searchTimeout: any;
-
   // recent search results
   recentResults: CachedSearchResult[] = [];
   private readonly STORAGE_KEY = 'cached_player_obp_results';
   private readonly MAX_HISTORY = 10;
 
   // Form fields
+  batterName: string = '';
   batterId: number = 50500; // Default test ID
   startDate: string = '';
   endDate: string = '';
+  
+  // player search and autocomplete
+  autocompletePlayers: PlayerProfile[] = [];
+  showDropdown: boolean = false;
+  private searchTimeout: any;
 
   // Data state
   stats: PlayerGameStats[] = [];
@@ -52,18 +53,16 @@ export class PlayerStatsComponent {
   onSearchInput() {
     clearTimeout(this.searchTimeout);
     
-    if (!this.searchQuery || this.searchQuery.trim().length < 2) {
+    if (!this.batterName || this.batterName.trim().length < 2) {
       this.autocompletePlayers = [];
       this.showDropdown = false;
       return;
     }
 
-    console.log('User typed:', this.searchQuery);
     // Debounce by 500ms so it doesn't spam the API on every keystroke
     this.searchTimeout = setTimeout(() => {
-      this.playerStatsService.getPlayerProfile(this.searchQuery.trim()).subscribe({
+      this.playerStatsService.getPlayerProfile(this.batterName.trim()).subscribe({
         next: (players: PlayerProfile[]) => {
-          console.log('Players retrieved:', players.length);
           this.autocompletePlayers = players;
           this.showDropdown = players.length > 0;
         },
@@ -77,7 +76,7 @@ export class PlayerStatsComponent {
   }
 
   selectPlayer(player: PlayerProfile) {
-    this.searchQuery = player.player_name;
+    this.batterName = player.player_name;
     this.batterId = player.player_id;
     this.showDropdown = false;
     this.autocompletePlayers = [];
@@ -85,6 +84,18 @@ export class PlayerStatsComponent {
     // Automatically trigger stats search for this selected player
     this.searchStats();
   }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent) {
+    const target = event.target as HTMLElement;
+    if (!target.closest('.filter-group')) {
+      this.showDropdown = false;
+    }
+  }
+
+  onEscapePress() {
+    this.showDropdown = false;
+  } 
 
   restoreChips() {
     const saved = localStorage.getItem(this.STORAGE_KEY);
@@ -98,9 +109,9 @@ export class PlayerStatsComponent {
   }
 
   saveChip(
-    playerId: number, startDate: string | undefined, endDate: string | undefined,
+    playerName: string,playerId: number, startDate: string | undefined, endDate: string | undefined,
     timeFrame: string, obp: number, stats: PlayerGameStats[]) {
-    const newEntry: CachedSearchResult = { playerId, startDate, endDate, timeFrame, obp, stats };
+    const newEntry: CachedSearchResult = { playerName, playerId, startDate, endDate, timeFrame, obp, stats };
 
     // Filter out any exact duplicates for this player and timeframe
     this.recentResults = this.recentResults.filter(
@@ -118,8 +129,7 @@ export class PlayerStatsComponent {
 
   // When user clicks a history chip, load it directly without hitting the API!
   loadFromChip(item: CachedSearchResult) {
-    console.log('Loading history item:', item);
-
+    this.batterName = item.playerName;
     this.batterId = item.playerId;
     this.startDate = item.startDate || '';
     this.endDate = item.endDate || '';
@@ -152,6 +162,7 @@ export class PlayerStatsComponent {
       
       // Refresh its position to the front of your history list
       this.saveChip(
+        this.batterName,
         this.batterId, 
         this.startDate || undefined, 
         this.endDate || undefined,
@@ -176,6 +187,7 @@ export class PlayerStatsComponent {
 
           // Save to localStorage ONLY after data is safely loaded and available
           this.saveChip(
+            this.batterName,
             this.batterId, 
             this.startDate || undefined, 
             this.endDate || undefined,

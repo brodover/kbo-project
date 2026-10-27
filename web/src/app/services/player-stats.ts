@@ -13,7 +13,6 @@ export class PlayerStatsService {
 
 
   getPlayerProfile(name: string) {
-    console.log('service(getPlayerProfile):', name);
     return this.http.get<PlayerProfile[]>(`${this.apiUrl}/players/search/${encodeURIComponent(name)}`);
   }
 
